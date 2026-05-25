@@ -40,6 +40,8 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping        = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
+  renderer.shadowMap.enabled  = true;
+  renderer.shadowMap.type     = THREE.PCFSoftShadowMap;
 
   var scene  = new THREE.Scene();
   scene.background = new THREE.Color(0x0e0700);
@@ -384,16 +386,23 @@
     color = color || C.stone;
     var g = new THREE.Group();
 
-    var pyGeo  = new THREE.ConeGeometry(base, height, 4);
-    var pyMesh = new THREE.Mesh(pyGeo, stoneMat(color, 0.85));
-    pyMesh.rotation.y = Math.PI / 4;
-    pyMesh.position.y = height / 2;
-    g.add(pyMesh);
+    // Stacked steps for realistic masonry texture
+    var stepsCount = 18;
+    var stepHeight = height / stepsCount;
+    for (var s = 0; s < stepsCount; s++) {
+      var pct = s / stepsCount;
+      var w = base * (1 - pct * 0.95);
+      var stepGeo = new THREE.BoxGeometry(w, stepHeight, w);
+      var stepMesh = new THREE.Mesh(stepGeo, stoneMat(color, 0.92));
+      stepMesh.position.y = s * stepHeight + stepHeight / 2;
+      stepMesh.rotation.y = Math.PI / 4;
+      g.add(stepMesh);
 
-    var el = edgeLine(pyGeo, C.amber, 0.2);
-    el.rotation.y = Math.PI / 4;
-    el.position.y = height / 2;
-    g.add(el);
+      var el = edgeLine(stepGeo, C.amber, 0.08);
+      el.position.y = stepMesh.position.y;
+      el.rotation.y = Math.PI / 4;
+      g.add(el);
+    }
 
     var capGeo = new THREE.ConeGeometry(base * 0.07, base * 0.14, 4);
     var cap    = new THREE.Mesh(capGeo, goldMat(C.capstone));
@@ -565,6 +574,16 @@
     shaft.position.y = h / 2;
     g.add(shaft);
 
+    // Add horizontal carving bands along the column shaft to mimic stacked stone drums
+    for (var sy = 2.0; sy < h - 1.5; sy += 2.2) {
+      var band = new THREE.Mesh(
+        new THREE.CylinderGeometry(r * 0.85, r * 0.85, 0.22, 14),
+        stoneMat(C.marbleDim, 0.6)
+      );
+      band.position.y = sy;
+      g.add(band);
+    }
+
     var cap = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.55, r * 0.82, r * 0.55, 14), stoneMat(0xe8dcc8, 0.5));
     cap.position.y = h + r * 0.28;
     g.add(cap);
@@ -691,6 +710,16 @@
     dome.position.y = 11 * scale;
     g.add(dome);
 
+    // Fatimid dome structural ribbed stone carvings
+    for (var dAngle = 0; dAngle < Math.PI * 2; dAngle += Math.PI / 4) {
+      var arcGeo = new THREE.TorusGeometry(6.55 * scale, 0.12 * scale, 4, 16, Math.PI / 2);
+      var arc = new THREE.Mesh(arcGeo, stoneMat(0xddd090, 0.6));
+      arc.position.y = 11 * scale;
+      arc.rotation.y = dAngle;
+      arc.rotation.x = -Math.PI / 2;
+      g.add(arc);
+    }
+
     // Drum
     var drum = new THREE.Mesh(new THREE.CylinderGeometry(5.5 * scale, 6 * scale, 2 * scale, 16), stoneMat(0xc8b87a));
     drum.position.y = 10 * scale;
@@ -788,10 +817,15 @@
   scene.add(modernGrp);
 
   // Nile River
-  var nileGeo = new THREE.PlaneGeometry(22, 130, 20, 20);
+  var nileGeo = new THREE.PlaneGeometry(22, 140, 50, 50);
   var nileMat = new THREE.MeshStandardMaterial({
-    color: C.nile, emissive: 0x0a2a60, emissiveIntensity: 0.45,
-    roughness: 0.1, metalness: 0.25, transparent: true, opacity: 0.82
+    color: 0x0c2540,
+    emissive: 0x0a2048,
+    emissiveIntensity: 0.28,
+    roughness: 0.06,
+    metalness: 0.88,
+    transparent: true,
+    opacity: 0.88
   });
   var nile = new THREE.Mesh(nileGeo, nileMat);
   nile.rotation.x = -Math.PI / 2;
@@ -820,6 +854,48 @@
     var el = edgeLine(tGeo, C.glassBlue, 0.4);
     el.position.y = h / 2;
     g.add(el);
+
+    // Vertical structural mullions on facades for realism
+    for (var col = -w/2 + 1; col <= w/2 - 1; col += 2.2) {
+      var mullionGeo = new THREE.BoxGeometry(0.12, h, 0.12);
+      var mullionMat = new THREE.MeshStandardMaterial({ color: 0x33353d, roughness: 0.5, metalness: 0.8 });
+      
+      var mullionF = new THREE.Mesh(mullionGeo, mullionMat);
+      mullionF.position.set(col, h / 2, (w * 0.75) * 0.5 + 0.02);
+      g.add(mullionF);
+
+      var mullionB = mullionF.clone();
+      mullionB.position.z = -(w * 0.75) * 0.5 - 0.02;
+      g.add(mullionB);
+    }
+
+    // Windows Grid (randomly lit offices)
+    var winRows = Math.floor(h / 2.8);
+    var winCols = Math.floor(w / 1.8);
+    for (var r = 1; r < winRows; r++) {
+      var wy = r * 2.8;
+      for (var c = 0; c < winCols; c++) {
+        var wx = (c - (winCols - 1) / 2) * 1.8;
+        
+        var winGeo = new THREE.PlaneGeometry(0.7, 1.0);
+        var winMat = new THREE.MeshStandardMaterial({
+          color: 0xfff3a0,
+          emissive: 0xffd54f,
+          emissiveIntensity: Math.random() > 0.38 ? 1.6 : 0.15 // Random lighting state
+        });
+        
+        // Front windows
+        var winF = new THREE.Mesh(winGeo, winMat);
+        winF.position.set(wx, wy, (w * 0.75) * 0.5 + 0.04);
+        g.add(winF);
+
+        // Back windows
+        var winBack = winF.clone();
+        winBack.position.z = -(w * 0.75) * 0.5 - 0.04;
+        winBack.rotation.y = Math.PI;
+        g.add(winBack);
+      }
+    }
 
     for (var floor = 2; floor < h - 2; floor += 3) {
       var band = new THREE.Mesh(
@@ -861,10 +937,19 @@
 
     var shaft = new THREE.Mesh(
       new THREE.CylinderGeometry(1.4, 2.0, 42, 14),
-      new THREE.MeshStandardMaterial({ color: 0x9e9e9e, roughness: 0.25, metalness: 0.85 })
+      new THREE.MeshStandardMaterial({ color: 0x8e8e8e, roughness: 0.35, metalness: 0.7 })
     );
     shaft.position.y = 21;
     g.add(shaft);
+
+    // Cairo Tower characteristic concrete diagonal latticework
+    var latticeGeo = new THREE.CylinderGeometry(1.45, 2.05, 42, 12, 14, true);
+    var lattice = new THREE.LineSegments(
+      new THREE.EdgesGeometry(latticeGeo),
+      new THREE.LineBasicMaterial({ color: 0xe0e0e0, transparent: true, opacity: 0.38 })
+    );
+    lattice.position.y = 21;
+    g.add(lattice);
 
     var deck = new THREE.Mesh(
       new THREE.CylinderGeometry(4.2, 3.5, 2.8, 14),
@@ -876,7 +961,7 @@
     for (var ry = 5; ry < 40; ry += 6) {
       var ring = new THREE.Mesh(
         new THREE.TorusGeometry(2, 0.12, 6, 16),
-        new THREE.MeshStandardMaterial({ color: 0x9e9e9e, metalness: 0.8 })
+        new THREE.MeshStandardMaterial({ color: 0x8e8e8e, metalness: 0.7 })
       );
       ring.rotation.x = Math.PI / 2;
       ring.position.y = ry;
@@ -1322,6 +1407,17 @@
 
   var sunLight = new THREE.DirectionalLight(0xfff5d0, 1.4);
   sunLight.position.set(60, 90, 60);
+  sunLight.castShadow = true;
+  sunLight.shadow.mapSize.width = 2048;
+  sunLight.shadow.mapSize.height = 2048;
+  sunLight.shadow.camera.near = 0.5;
+  sunLight.shadow.camera.far = 450;
+  var d = 180;
+  sunLight.shadow.camera.left = -d;
+  sunLight.shadow.camera.right = d;
+  sunLight.shadow.camera.top = d;
+  sunLight.shadow.camera.bottom = -d;
+  sunLight.shadow.bias = -0.0005;
   scene.add(sunLight);
 
   /* ═══════════════════════════════════════════
@@ -1526,11 +1622,14 @@
     }
 
     // ── Nile waves ─────────────────────────────────────────────────
-    if (frameCount % 3 === 0) {
+    if (frameCount % 2 === 0) {
       var nPos = nile.geometry.attributes.position;
       for (var ni = 0; ni < nPos.count; ni++) {
         var nx2 = nPos.getX(ni), nz2 = nPos.getZ(ni);
-        nPos.setZ(ni, Math.sin(nx2 * 0.45 + elapsed * 1.6) * 0.3 + Math.cos(nz2 * 0.3 + elapsed * 1.1) * 0.15);
+        var w1 = Math.sin(nx2 * 0.4 + elapsed * 1.8) * 0.22;
+        var w2 = Math.cos(nz2 * 0.2 + elapsed * 1.2) * 0.14;
+        var w3 = Math.sin((nx2 + nz2) * 0.15 + elapsed * 2.2) * 0.08;
+        nPos.setZ(ni, w1 + w2 + w3);
       }
       nPos.needsUpdate = true;
       nile.geometry.computeVertexNormals();
@@ -1580,6 +1679,31 @@
 
     renderer.render(scene, camera);
   }
+
+  /* ═══════════════════════════════════════════
+     SHADOW MAPS RESOLUTION CRAWLER
+     ═══════════════════════════════════════════ */
+  function setupShadowsRecursive(obj) {
+    if (obj.isMesh) {
+      // Glow meshes, particles, and fine light beams shouldn't cast shadows
+      var isLaser = obj.geometry && obj.geometry.parameters && obj.geometry.parameters.radiusTop <= 0.12;
+      var isGlow  = obj.material && (obj.material.transparent === true && obj.material.opacity < 0.5);
+      var isPoints = obj.isPoints;
+      
+      if (!isLaser && !isGlow && !isPoints) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      } else {
+        obj.receiveShadow = true;
+      }
+    }
+    if (obj.children) {
+      for (var i = 0; i < obj.children.length; i++) {
+        setupShadowsRecursive(obj.children[i]);
+      }
+    }
+  }
+  setupShadowsRecursive(scene);
 
   animate();
 
