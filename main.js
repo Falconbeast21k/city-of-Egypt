@@ -1164,6 +1164,56 @@
   }());
 
   /* ═══════════════════════════════════════════
+     ANCIENT EGYPT SANDSTORM SYSTEM
+     ═══════════════════════════════════════════ */
+  var sandstormGeo, sandstormPoints;
+  var SANDSTORM_N = 8000;
+  var sandstormData = [];
+
+  (function () {
+    var positions = new Float32Array(SANDSTORM_N * 3);
+    var colors = new Float32Array(SANDSTORM_N * 3);
+    
+    var sandColors = [
+      new THREE.Color(C.amber),
+      new THREE.Color(C.gold),
+      new THREE.Color(C.sand),
+      new THREE.Color(C.sandDark)
+    ];
+
+    for (var i = 0; i < SANDSTORM_N; i++) {
+      var px = (Math.random() - 0.5) * 240;
+      var py = Math.random() * 32;
+      var pz = Math.random() * 100 - 50;
+      
+      positions[i * 3]     = px;
+      positions[i * 3 + 1] = py;
+      positions[i * 3 + 2] = pz;
+
+      var col = sandColors[Math.floor(Math.random() * sandColors.length)];
+      colors[i * 3]     = col.r;
+      colors[i * 3 + 1] = col.g;
+      colors[i * 3 + 2] = col.b;
+
+      sandstormData.push({
+        windSpeed: 25 + Math.random() * 35,
+        swirlSpeed: 1 + Math.random() * 4,
+        swirlRadius: 0.1 + Math.random() * 0.4,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+
+    sandstormGeo = new THREE.BufferGeometry();
+    sandstormGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    sandstormGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    sandstormPoints = new THREE.Points(sandstormGeo, new THREE.PointsMaterial({
+      size: 0.28, vertexColors: true, transparent: true, opacity: 0.0, sizeAttenuation: true
+    }));
+    scene.add(sandstormPoints);
+  }());
+
+  /* ═══════════════════════════════════════════
      LIGHTS
      ═══════════════════════════════════════════ */
   scene.add(new THREE.AmbientLight(0x100804, 1.1));
@@ -1417,6 +1467,35 @@
         particleArr[pi * 3 + 1] += Math.sin(elapsed * 0.4 + pi * 0.15) * 0.003;
       }
       particleGeo.attributes.position.needsUpdate = true;
+    }
+
+    // ── Sandstorm update ───────────────────────────────────────────
+    if (sandstormPoints) {
+      var camZ = camera.position.z;
+      var targetOpacity = 0;
+      if (camZ > -60) {
+        if (camZ > 30) {
+          targetOpacity = Math.min((110 - camZ) / 40, 0.72);
+        } else {
+          targetOpacity = Math.min((camZ + 60) / 90 * 0.72, 0.72);
+        }
+      }
+      sandstormPoints.material.opacity = sandstormPoints.material.opacity + (targetOpacity - sandstormPoints.material.opacity) * 0.08;
+
+      var positions = sandstormGeo.attributes.position.array;
+      for (var i = 0; i < SANDSTORM_N; i++) {
+        var data = sandstormData[i];
+        positions[i * 3] -= data.windSpeed * delta;
+        data.phase += delta * data.swirlSpeed;
+        positions[i * 3 + 1] += Math.sin(data.phase) * data.swirlRadius * 0.15;
+        positions[i * 3 + 2] += Math.cos(data.phase) * data.swirlRadius * 0.15;
+
+        if (positions[i * 3] < -120) {
+          positions[i * 3] = 120;
+          positions[i * 3 + 1] = Math.random() * 32;
+        }
+      }
+      sandstormGeo.attributes.position.needsUpdate = true;
     }
 
     renderer.render(scene, camera);
