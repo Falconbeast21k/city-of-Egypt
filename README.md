@@ -1,7 +1,7 @@
 # 𓂀 Egypt Through Time — 3D Scroll-Driven Concept City
 
 <p align="center">
-  <img src="assets/banner.png" alt="Egypt Through Time Banner" width="100%" />
+  <img src="assets/banner.svg" alt="Egypt Through Time Banner" width="100%" />
 </p>
 
 <p align="center">
