@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Egypt Through Time — A Journey from Ancient to Future</title>
+  <meta name="description" content="Scroll through 6,000 years of Egyptian civilization — from the Pharaohs' pyramids to a neon-lit future metropolis. A stunning scroll-driven 3D experience." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@100;300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script>
+    window.addEventListener('error', function(e) {
+      var errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed';
+      errDiv.style.top = '0';
+      errDiv.style.left = '0';
+      errDiv.style.width = '100%';
+      errDiv.style.background = 'rgba(255, 0, 0, 0.9)';
+      errDiv.style.color = 'white';
+      errDiv.style.padding = '10px';
+      errDiv.style.zIndex = '99999';
+      errDiv.style.fontFamily = 'monospace';
+      errDiv.style.fontSize = '12px';
+      errDiv.style.whiteSpace = 'pre-wrap';
+      errDiv.style.pointerEvents = 'auto';
+      errDiv.innerText = 'Error: ' + e.message + '\nat ' + e.filename + ':' + e.lineno + ':' + e.colno;
+      document.body.appendChild(errDiv);
+    });
+  </script>
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div id="custom-cursor"></div>
+
+  <!-- Loading Screen -->
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-eye">
+        <div class="eye-outer"></div>
+        <div class="eye-inner"></div>
+        <div class="eye-pupil"></div>
+      </div>
+      <p class="loader-title">EGYPT THROUGH TIME</p>
+      <p class="loader-text">INITIALIZING THE ETERNAL JOURNEY</p>
+      <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderFill"></div></div>
+    </div>
+  </div>
+
+  <!-- Fixed Canvas -->
+  <canvas id="threeCanvas"></canvas>
+
+  <!-- HUD Overlay -->
+  <div id="hud">
+    <div class="hud-top">
+      <div class="hud-left">
+        <span class="hud-title">𓂀  EGYPT THROUGH TIME</span>
+        <span class="hud-era" id="hudEra">4000 BCE</span>
+      </div>
+      <div class="hud-right">
+        <span class="hud-label" id="hudLabel">DAWN OF CIVILIZATION</span>
+      </div>
+    </div>
+    <div class="hud-bottom">
+      <div class="hud-progress-bar"><div class="hud-progress-fill" id="hudProgress"></div></div>
+    </div>
+  </div>
+
+  <!-- Scroll Sections -->
+  <div id="scroll-container">
+
+    <!-- s0: Intro -->
+    <section class="scroll-section" id="s0">
+      <div class="section-content section-content--center">
+        <div class="text-block era-ancient animate-in" id="tb0">
+          <span class="label">THE JOURNEY BEGINS</span>
+          <h1>EGYPT<br/><em>THROUGH TIME</em></h1>
+          <p>From the first pyramid rising from desert sand<br/>to towers of light reaching the future sky —<br/>six thousand years of mathematical and architectural wonders in a single scroll.</p>
+          <div class="scroll-hint">
+            <div class="scroll-dot"></div>
+            <span>SCROLL TO TRAVEL THROUGH TIME</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- s1: Ancient Egypt -->
+    <section class="scroll-section" id="s1">
+      <div class="section-content section-content--left">
+        <div class="text-block era-ancient animate-in" id="tb1">
+          <span class="label">circa 2560 BCE</span>
+          <h2>AGE OF THE<br/>PHARAOHS</h2>
+          <p>The Great Pyramids of Giza emerge from the shifting desert sands. Built with high-precision alignment to the stars, their geometry channels the cosmic balance of Ma'at. Obelisks pierce the sky as stone rays of the sun god Ra, while the Sphinx stands watch — an eternal guardian of sacred proportions.</p>
+          <div class="era-badge">𓂀 ANCIENT EGYPT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- s2: Classical Temples -->
+    <section class="scroll-section" id="s2">
+      <div class="section-content section-content--right">
+        <div class="text-block era-classical animate-in" id="tb2">
+          <span class="label">circa 500 BCE</span>
+          <h2>TEMPLE OF<br/>KARNAK</h2>
+          <p>Forests of lotus and papyrus columns rise in massive hypostyle halls. The columns are arranged in geometric grids mimicking the primordial marshes of creation. Walk avenues lined with sphinxes, where marble, stone, and gold form pathways aligned to the rising sun in the age of dynasties.</p>
+          <div class="era-badge">𓆣 CLASSICAL EGYPT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- s3: Medieval Islamic Cairo -->
+    <section class="scroll-section" id="s3">
+      <div class="section-content section-content--left">
+        <div class="text-block era-medieval animate-in" id="tb3">
+          <span class="label">circa 969 CE</span>
+          <h2>FATIMID<br/>CAIRO</h2>
+          <p>Minarets call from cobalt domes to the bustling medieval streets below. Complex star-lattice arches and geometric arabesques are carved into stone, wood, and metal — translating the infinite order of the cosmos into mathematical architecture that stands the test of time.</p>
+          <div class="era-badge">☽ ISLAMIC CAIRO</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- s4: Modern Cairo -->
+    <section class="scroll-section" id="s4">
+      <div class="section-content section-content--right">
+        <div class="text-block era-modern animate-in" id="tb4">
+          <span class="label">2024 CE</span>
+          <h2>MODERN<br/>CAIRO</h2>
+          <p>The Nile flows between sleek glass skyscrapers and ancient stone. Helical towers rise from the riverbanks, their twisted glass facades twisting towards the sky in a celebration of modern engineering, blending architectural curves with historical lineage.</p>
+          <div class="era-badge">⬡ MODERN EGYPT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- s5: Future Egypt -->
+    <section class="scroll-section" id="s5">
+      <div class="section-content section-content--left">
+        <div class="text-block era-future animate-in" id="tb5">
+          <span class="label">2150 CE</span>
+          <h2>KEMET<br/>CONCEPT METROPOLIS</h2>
+          <p>Inverted quantum pyramids float suspended on magnetic anti-gravity arrays. Honeycomb biotech citadels dynamically expand, forming living structural clusters, while segmented obelisks emit high-energy plasma beams to the orbital grid. Aerial traffic corridors connect the sectors, illuminated under the rotating holographic Eye of Ra core.</p>
+          <div class="scifi-overlay">
+            <div class="hud-stat"><span class="hud-dot"></span>SYS.LOC: //KEMET_QUANTUM_CORE_SECTOR_09</div>
+            <div class="hud-stat"><span class="hud-dot"></span>BEAM_GRID: ACTIVE // 1.28M GW</div>
+            <div class="hud-stat"><span class="hud-dot"></span>ANTI_GRAV: COMPENSATING // 98.4%</div>
+          </div>
+          <div class="era-badge">✦ FUTURE EGYPT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- s6: Outro -->
+    <section class="scroll-section" id="s6">
+      <div class="section-content section-content--center">
+        <div class="text-block era-future animate-in" id="tb6">
+          <span class="label">∞ EGYPT ETERNAL</span>
+          <h2>THE NILE<br/>RUNS FOREVER</h2>
+          <p>From sand to stars, from stone to light — Egypt endures. The oldest civilization, and perhaps the longest. The Nile runs forever, connecting the wisdom of the past with the dreams of the future.</p>
+          <button class="btn-restart" id="btnRestart">𓂀 BEGIN AGAIN</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="three.min.js?v=3"></script>
+  <script src="gsap.min.js?v=3"></script>
+  <script src="ScrollTrigger.min.js?v=3"></script>
+  <script src="main.js?v=3"></script>
+</body>
+</html>

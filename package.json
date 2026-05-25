@@ -1,0 +1,10 @@
+{
+  "name": "geometric-city",
+  "version": "1.0.0",
+  "description": "Geometric City — 3D Scroll Experience",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {}
+}
