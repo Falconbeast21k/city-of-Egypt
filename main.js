@@ -1079,31 +1079,106 @@
     futureGrp.add(grp);
   }());
 
-  // Future towers
-  function buildFutureTower(x, z, height, color) {
+  // Premium Cyber-Egyptian Skyscraper Builder
+  function buildFutureSkyscraper(x, z, height, width, color) {
     var g = new THREE.Group();
 
-    var geo  = new THREE.CylinderGeometry(2.8, 3.2, height, 6);
-    var body = new THREE.Mesh(geo, glowMat(color, 0.55, 0.75));
-    body.position.y = height / 2;
-    g.add(body);
+    // 1. Core structural skeleton (glowing wireframe core)
+    var coreGeo = new THREE.BoxGeometry(width * 0.55, height, width * 0.55);
+    var core = new THREE.Mesh(coreGeo, glowMat(color, 1.2, 0.72));
+    core.position.y = height / 2;
+    g.add(core);
 
-    for (var fy = 5; fy < height - 4; fy += 7) {
-      var fring = new THREE.Mesh(new THREE.TorusGeometry(3.6, 0.14, 6, 18), glowMat(color, 0.9));
-      fring.rotation.x = Math.PI / 2;
-      fring.position.y = fy;
-      g.add(fring);
+    // 2. Outer glass panels (semi-transparent skin)
+    var glassGeo = new THREE.BoxGeometry(width, height * 0.96, width);
+    var glass = new THREE.Mesh(glassGeo, glassMat(color));
+    glass.position.y = height / 2;
+    g.add(glass);
+
+    // 3. Glowing neon edge lines
+    var edges = edgeLine(glassGeo, color, 0.9);
+    edges.position.y = height / 2;
+    g.add(edges);
+
+    // 4. Horizontal neon ribs/floors
+    var floorsCount = Math.floor(height / 5.5);
+    for (var f = 0; f < floorsCount; f++) {
+      var fy = f * 5.5 + 2.8;
+      var ribGeo = new THREE.BoxGeometry(width * 1.04, 0.22, width * 1.04);
+      var rib = new THREE.Mesh(ribGeo, glowMat(color, 1.6));
+      rib.position.y = fy;
+      g.add(rib);
+      
+      // Face accent ring details
+      if (f % 3 === 0) {
+        var ringGeo = new THREE.TorusGeometry(width * 0.72, 0.12, 4, 8);
+        var ring = new THREE.Mesh(ringGeo, goldMat(C.neonGold));
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = fy;
+        g.add(ring);
+      }
     }
 
-    var crown = new THREE.Mesh(new THREE.ConeGeometry(4.5, 9, 4), glowMat(color, 2.0, 0.88));
-    crown.rotation.x = Math.PI;
-    crown.rotation.y = Math.PI / 4;
-    crown.position.y = height + 4.5;
-    g.add(crown);
+    // 5. Crown: Holographic glowing capstone
+    var capGeo = new THREE.ConeGeometry(width * 0.55, width * 1.1, 4);
+    var cap = new THREE.Mesh(capGeo, glowMat(color, 2.5, 0.9));
+    cap.rotation.y = Math.PI / 4;
+    cap.position.y = height + (width * 0.55);
+    g.add(cap);
+
+    // Vertical energy beam
+    var beamGeo = new THREE.CylinderGeometry(0.04, 0.04, 90, 8);
+    var beam = new THREE.Mesh(beamGeo, new THREE.MeshBasicMaterial({
+      color: color, transparent: true, opacity: 0.35
+    }));
+    beam.position.y = height + 45;
+    g.add(beam);
 
     g.position.set(x, 0, z);
     futureGrp.add(g);
+    return g;
   }
+
+  // Future City Starry Nebula Field
+  (function () {
+    var starCount = 600;
+    var positions = new Float32Array(starCount * 3);
+    var colors = new Float32Array(starCount * 3);
+    
+    var nebulaColors = [
+      new THREE.Color(C.neonCyan),
+      new THREE.Color(C.neonViolet),
+      new THREE.Color(C.neonPink)
+    ];
+
+    for (var i = 0; i < starCount; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 320;
+      positions[i * 3 + 1] = Math.random() * 85 + 32;
+      positions[i * 3 + 2] = Math.random() * -120 - 200; // far back in future section
+      
+      var col = nebulaColors[Math.floor(Math.random() * nebulaColors.length)];
+      colors[i * 3]     = col.r;
+      colors[i * 3 + 1] = col.g;
+      colors[i * 3 + 2] = col.b;
+    }
+    
+    var starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    var starPoints = new THREE.Points(starGeo, new THREE.PointsMaterial({
+      size: 0.45, vertexColors: true, transparent: true, opacity: 0.75, sizeAttenuation: true
+    }));
+    futureGrp.add(starPoints);
+  }());
+
+  // Additional flying traffic lanes connecting skyscrapers
+  addTrafficLane(futureGrp, new THREE.Vector3(-44, 15, -228), new THREE.Vector3(-54, 30, -255), 4, C.neonCyan);
+  addTrafficLane(futureGrp, new THREE.Vector3(44, 15, -228), new THREE.Vector3(54, 30, -258), 4, C.neonPink);
+  addTrafficLane(futureGrp, new THREE.Vector3(-54, 25, -255), new THREE.Vector3(-32, 35, -285), 3, C.neonGold);
+  addTrafficLane(futureGrp, new THREE.Vector3(54, 25, -258), new THREE.Vector3(32, 35, -285), 3, C.neonGreen);
+  addTrafficLane(futureGrp, new THREE.Vector3(-32, 40, -285), new THREE.Vector3(0, 26, -266), 4, C.neonCyan);
+  addTrafficLane(futureGrp, new THREE.Vector3(32, 40, -285), new THREE.Vector3(0, 26, -266), 4, C.neonViolet);
 
   var honeycombCitadels = [];
   honeycombCitadels.push(buildHoneycombCitadel(futureGrp, -26, -242, 2.5, 12, C.neonCyan));
@@ -1111,12 +1186,17 @@
 
   var helicalPyramid = buildHelicalPyramid(futureGrp, 0, -266, 16, 22, C.neonGold);
 
-  buildFutureTower(-44, -228, 40, C.neonCyan);
-  buildFutureTower( 44, -228, 34, C.neonViolet);
-  buildFutureTower(-48, -255, 46, C.neonGold);
-  buildFutureTower( 48, -258, 38, C.neonPink);
-  buildFutureTower(-42, -272, 32, C.neonGreen);
-  buildFutureTower( 42, -270, 30, C.neonCyan);
+  // Dense skyscraper horizon canyon
+  buildFutureSkyscraper(-44, -228, 52, 7.5, C.neonCyan);
+  buildFutureSkyscraper( 44, -228, 46, 7.5, C.neonViolet);
+  buildFutureSkyscraper(-54, -255, 58, 8.5, C.neonGold);
+  buildFutureSkyscraper( 54, -258, 50, 8.5, C.neonPink);
+  buildFutureSkyscraper(-48, -276, 44, 6.5, C.neonGreen);
+  buildFutureSkyscraper( 48, -274, 42, 6.5, C.neonCyan);
+  buildFutureSkyscraper(-32, -285, 62, 9.0, C.neonViolet);
+  buildFutureSkyscraper( 32, -285, 56, 9.0, C.neonGold);
+  buildFutureSkyscraper(-60, -240, 40, 7.0, C.neonCyan);
+  buildFutureSkyscraper( 60, -240, 38, 7.0, C.neonPink);
 
   /* ═══════════════════════════════════════════
      GROUND & GRID
